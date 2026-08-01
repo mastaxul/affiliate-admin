@@ -7,7 +7,7 @@ const file = document.getElementById("gambar").files[0];
 
 
 if(!file){
-alert("Pilih gambar dahulu");
+alert("Sila pilih gambar");
 return;
 }
 
@@ -23,9 +23,8 @@ reader.onload = function(e){
 
 
 fetch(API_URL,{
-
 method:"POST",
-
+mode:"no-cors",
 body:JSON.stringify({
 
 action:"upload",
@@ -37,37 +36,16 @@ name:file.name
 })
 
 })
-
-.then(response=>response.text())
-
-.then(text=>{
-
-
-console.log(text);
-
-
-let data = JSON.parse(text);
-
-
-if(data.url){
-
-simpanProduk(data.url);
-
-}else{
-
-throw new Error(data.message);
-
-}
-
-
-})
-
-.catch(error=>{
-
+.then(()=>{
 
 document.getElementById("status").innerHTML =
-"❌ Error: " + error.message;
+"✅ Gambar dihantar. Semak Google Drive";
 
+})
+.catch(error=>{
+
+document.getElementById("status").innerHTML =
+"❌ Error: "+error.message;
 
 });
 
@@ -76,84 +54,6 @@ document.getElementById("status").innerHTML =
 
 
 reader.readAsDataURL(file);
-
-
-}
-
-
-
-
-function simpanProduk(gambar){
-
-
-const produk={
-
-
-Nama:document.getElementById("nama").value,
-
-Harga:document.getElementById("harga").value,
-
-Kategeri:document.getElementById("kategori").value,
-
-Gambar:gambar,
-
-Tiktok:document.getElementById("tiktok").value,
-
-Shopee:document.getElementById("shopee").value,
-
-Lazada:document.getElementById("lazada").value,
-
-Badge:document.getElementById("badge").value
-
-
-};
-
-
-
-document.getElementById("status").innerHTML =
-"⏳ Simpan produk...";
-
-
-
-fetch(API_URL,{
-
-method:"POST",
-
-body:JSON.stringify({
-
-action:"add",
-
-product:produk
-
-})
-
-})
-
-
-.then(response=>response.text())
-
-
-.then(text=>{
-
-
-console.log(text);
-
-
-document.getElementById("status").innerHTML =
-"✅ Produk berjaya ditambah";
-
-
-})
-
-
-.catch(error=>{
-
-
-document.getElementById("status").innerHTML =
-"❌ Error: "+error.message;
-
-
-});
 
 
 }
