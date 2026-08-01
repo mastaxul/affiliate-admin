@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Masta Xul Admin Panel</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+<h1>🚀 Masta Xul Admin Panel</h1>
+
+<p>Tambah produk affiliate</p>
+
+
+<label>Nama Produk</label>
+<input id="nama" type="text">
+
+
+<label>Harga</label>
+<input id="harga" type="text">
+
+
+<label>Kategori</label>
+
+<select id="kategori">
+
+<option>Kesihatan</option>
+<option>Gadget</option>
+<option>Rumah</option>
+<option>Viral</option>
+
+</select>
+
+
+<label>Badge</label>
+
+<input id="badge" type="text"
+placeholder="Contoh: 🔥 Viral">
+
+
+<label>Gambar Produk</label>
+
+<input id="gambar"
+type="file"
+accept="image/*">
+
+
+<label>Link TikTok</label>
+
+<input id="tiktok"
+type="text">
+
+
+<label>Link Shopee</label>
+
+<input id="shopee"
+type="text">
+
+
+<label>Link Lazada</label>
+
+<input id="lazada"
+type="text">
+
+
+<button onclick="tambahProduk()">
+Tambah Produk
+</button>
+
+
+<p id="status"></p>
+
+
+</div>
+
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
