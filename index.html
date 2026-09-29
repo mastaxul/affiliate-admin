@@ -17,32 +17,70 @@
         .progress-bar-fill {
             transition: width 0.1s linear;
         }
+        .thumb-preview {
+            transition: transform 0.2s ease, opacity 0.3s ease, box-shadow 0.2s ease;
+        }
+        .thumb-preview:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.6);
+            z-index: 10;
+        }
+        .thumbs-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .thumbs-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .thumbs-scroll::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+        .side-thumbs {
+            scrollbar-width: none;
+        }
+        .side-thumbs::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between font-sans select-none">
 
     <!-- MAIN SLIDESHOW CONTAINER (VIEWER PUBLIC AREA) -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 relative">
-        <div class="w-full max-w-md bg-slate-800/80 rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden backdrop-blur-md">
+    <main class="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 relative">
+        <div class="w-full max-w-lg bg-slate-800/80 rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden backdrop-blur-md">
             
             <!-- Tajuk Berkecuali -->
-            <div class="p-4 text-center border-b border-slate-700/50">
+            <div class="p-3 sm:p-4 text-center border-b border-slate-700/50">
                 <h1 class="text-lg font-bold tracking-wide text-slate-100" id="gallery-title">Tawaran Khas Hari Ini</h1>
                 <p class="text-xs text-slate-400 mt-1">Sila tunggu sebentar, gambar sedang dimuatkan...</p>
             </div>
 
-            <!-- Frame Gambar Slideshow -->
-            <div class="relative w-full aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
-                <img id="slideshow-image" src="" alt="Promosi" class="w-full h-full object-cover fade-enter fade-enter-active">
-                
-                <!-- Indikator Bilangan Gambar -->
-                <div class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-md border border-white/10">
-                    <span id="current-slide-num">1</span> / <span id="total-slides-num">1</span>
+            <!-- Frame Gambar Slideshow + Side Previews -->
+            <div class="flex items-stretch gap-1.5 p-2 bg-slate-900/40">
+                <!-- Left side previews -->
+                <div id="left-thumbs" class="side-thumbs flex flex-col gap-1.5 w-14 sm:w-16 overflow-y-auto max-h-[220px] sm:max-h-[280px] shrink-0"></div>
+
+                <!-- Main image -->
+                <div class="relative flex-1 aspect-[4/3] bg-black overflow-hidden flex items-center justify-center rounded-lg">
+                    <img id="slideshow-image" src="" alt="Promosi" class="w-full h-full object-cover fade-enter fade-enter-active">
+                    
+                    <!-- Indikator Bilangan Gambar -->
+                    <div class="absolute top-2 right-2 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-md border border-white/10">
+                        <span id="current-slide-num">1</span> / <span id="total-slides-num">1</span>
+                    </div>
                 </div>
+
+                <!-- Right side previews -->
+                <div id="right-thumbs" class="side-thumbs flex flex-col gap-1.5 w-14 sm:w-16 overflow-y-auto max-h-[220px] sm:max-h-[280px] shrink-0"></div>
+            </div>
+
+            <!-- Bottom preview strip -->
+            <div class="px-2 pb-2">
+                <div id="bottom-thumbs" class="thumbs-scroll flex gap-1.5 overflow-x-auto py-1"></div>
             </div>
 
             <!-- Progress Bar Masa & Status -->
-            <div class="p-4 space-y-3">
+            <div class="p-3 sm:p-4 space-y-3 border-t border-slate-700/40">
                 <div class="w-full bg-slate-700/60 h-2 rounded-full overflow-hidden">
                     <div id="progress-bar" class="bg-indigo-500 h-full w-0 progress-bar-fill"></div>
                 </div>
@@ -62,7 +100,7 @@
 
     <!-- BORANG TETAPAN ADMIN (HIDDEN BY DEFAULT) -->
     <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                 <h2 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
                     ⚙️ Borang Tetapan (Admin)
@@ -81,13 +119,22 @@
 
                 <!-- Senarai Link Gambar -->
                 <div>
-                    <label class="block font-medium text-slate-200 mb-1">Pautan Gambar (Masukkan 1 Link Setiap Baris):</label>
-                    <textarea id="input-images" rows="5" required placeholder="https://example.com/gambar1.jpg&#10;https://example.com/gambar2.jpg"
+                    <label class="block font-medium text-slate-200 mb-1">Pautan Gambar Slideshow (1 Link Setiap Baris):</label>
+                    <textarea id="input-images" rows="4" required placeholder="https://example.com/gambar1.jpg&#10;https://example.com/gambar2.jpg"
                         class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                     <p class="text-xs text-slate-400 mt-1">Tampal URL gambar penuh di sini. Masukkan satu pautan per baris.</p>
                 </div>
 
-                <!-- Masa Slaid -->
+                <!-- Kata Kunci Preview -->
+                <div>
+                    <label class="block font-medium text-slate-200 mb-1">Kata Kunci Gambar Preview:</label>
+                    <input type="text" id="input-preview-keyword" value="melayu boleh" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="contoh: melayu boleh">
+                    <p class="text-xs text-slate-400 mt-1">Kata kunci ini digunakan untuk menjana ~40 gambar preview di kiri, kanan & bawah. Akan auto bertukar setiap reload.</p>
+                </div>
+
+                <!-- Masa Slaid & Tajuk -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-medium text-slate-200 mb-1">Masa Sedia (Saat/Gambar):</label>
@@ -124,6 +171,7 @@
             targetUrl: "https://shopee.com.my",
             pageTitle: "Tawaran Khas Hari Ini",
             slideDuration: 3, // saat per gambar
+            previewKeyword: "melayu boleh",
             images: [
                 "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800",
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
@@ -136,7 +184,10 @@
             const saved = localStorage.getItem('site_config');
             if (saved) {
                 try {
-                    return JSON.parse(saved);
+                    const parsed = JSON.parse(saved);
+                    // Pastikan field baru wujud (untuk backward compatibility)
+                    if (!parsed.previewKeyword) parsed.previewKeyword = DEFAULT_CONFIG.previewKeyword;
+                    return parsed;
                 } catch(e) {
                     return DEFAULT_CONFIG;
                 }
@@ -153,6 +204,9 @@
         const progressBar = document.getElementById('progress-bar');
         const countdownText = document.getElementById('countdown-text');
         const galleryTitle = document.getElementById('gallery-title');
+        const leftThumbs = document.getElementById('left-thumbs');
+        const rightThumbs = document.getElementById('right-thumbs');
+        const bottomThumbs = document.getElementById('bottom-thumbs');
 
         // Admin Elements
         const adminModal = document.getElementById('admin-modal');
@@ -161,16 +215,86 @@
         const inputImages = document.getElementById('input-images');
         const inputSlideDuration = document.getElementById('input-slide-duration');
         const inputPageTitle = document.getElementById('input-page-title');
+        const inputPreviewKeyword = document.getElementById('input-preview-keyword');
         const closeAdminBtn = document.getElementById('close-admin-btn');
         const resetDefaultBtn = document.getElementById('reset-default-btn');
 
         // Variables state
         let currentSlideIndex = 0;
         let totalSlides = config.images.length;
-        let totalDuration = totalSlides * config.slideDuration; // Jumlah saat
+        let totalDuration = totalSlides * config.slideDuration;
         let timeRemaining = totalDuration;
         let slideTimer = null;
         let progressTimer = null;
+
+        // ========== PREVIEW IMAGES (berdasarkan kata kunci) ==========
+        // Jumlah preview: kiri 5 + kanan 5 + bawah ~30 = ~40 gambar
+        const SIDE_COUNT = 5;
+        const BOTTOM_COUNT = 30;
+        const TOTAL_PREVIEW = SIDE_COUNT * 2 + BOTTOM_COUNT;
+
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // Jana URL gambar preview berdasarkan kata kunci + index + random seed (bertukar setiap reload)
+        function generatePreviewUrls(keyword, count) {
+            const seedBase = keyword.trim().toLowerCase().replace(/\s+/g, '-') || 'melayu-boleh';
+            // Tambah timestamp random supaya setiap reload berbeza
+            const sessionSeed = Math.floor(Math.random() * 100000);
+            const urls = [];
+            for (let i = 0; i < count; i++) {
+                // picsum.photos/seed/... menghasilkan gambar konsisten untuk seed yang sama,
+                // tapi kita mix seed + index + session supaya auto-change on reload
+                const seed = `${seedBase}-${sessionSeed}-${i}`;
+                // Saiz kecil untuk thumbnail (cepat load)
+                urls.push(`https://picsum.photos/seed/${encodeURIComponent(seed)}/160/160`);
+            }
+            return urls;
+        }
+
+        function createThumbElement(url, sizeClass = 'w-full h-14 sm:h-16') {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Preview';
+            img.loading = 'lazy';
+            img.className = `thumb-preview ${sizeClass} object-cover rounded-md border border-slate-600/60 bg-slate-900 cursor-pointer opacity-90 hover:opacity-100`;
+            img.onerror = function() {
+                // Fallback jika gambar gagal load
+                this.src = `https://picsum.photos/seed/fallback-${Math.random()}/160/160`;
+            };
+            return img;
+        }
+
+        function renderPreviews() {
+            const keyword = config.previewKeyword || 'melayu boleh';
+            const allUrls = generatePreviewUrls(keyword, TOTAL_PREVIEW);
+            const shuffled = shuffleArray(allUrls);
+
+            // Kosongkan container
+            leftThumbs.innerHTML = '';
+            rightThumbs.innerHTML = '';
+            bottomThumbs.innerHTML = '';
+
+            // Kiri
+            for (let i = 0; i < SIDE_COUNT; i++) {
+                leftThumbs.appendChild(createThumbElement(shuffled[i]));
+            }
+            // Kanan
+            for (let i = 0; i < SIDE_COUNT; i++) {
+                rightThumbs.appendChild(createThumbElement(shuffled[SIDE_COUNT + i]));
+            }
+            // Bawah (horizontal scroll)
+            for (let i = 0; i < BOTTOM_COUNT; i++) {
+                const thumb = createThumbElement(shuffled[SIDE_COUNT * 2 + i], 'w-14 h-14 sm:w-16 sm:h-16 shrink-0');
+                bottomThumbs.appendChild(thumb);
+            }
+        }
 
         // Inisialisasi Paparan Awam
         function initPublicPage() {
@@ -179,10 +303,14 @@
             totalSlidesNum.textContent = totalSlides;
             currentSlideIndex = 0;
             timeRemaining = totalSlides * config.slideDuration;
+            totalDuration = timeRemaining;
 
             if (totalSlides > 0) {
                 imgElement.src = config.images[0];
             }
+
+            // Render preview thumbnails (auto change on every call / reload)
+            renderPreviews();
 
             startSlideshowAndRedirect();
         }
@@ -205,20 +333,16 @@
             const startTime = Date.now();
             const totalMs = totalDuration * 1000;
 
-            // Timer Kemajuan (Progress Bar & Countdown)
             progressTimer = setInterval(() => {
                 const elapsedMs = Date.now() - startTime;
                 const remainingMs = Math.max(0, totalMs - elapsedMs);
                 timeRemaining = Math.ceil(remainingMs / 1000);
 
-                // Update UI Countdown
                 countdownText.textContent = `${timeRemaining}s`;
 
-                // Update Progress Bar
                 const progressPercent = Math.min(100, (elapsedMs / totalMs) * 100);
                 progressBar.style.width = `${progressPercent}%`;
 
-                // Tukar Slaid Gambar mengikut sela masa
                 const slideDurationMs = config.slideDuration * 1000;
                 const calculatedIndex = Math.min(
                     totalSlides - 1,
@@ -230,7 +354,6 @@
                     changeSlide(currentSlideIndex);
                 }
 
-                // Bila Masa Tamat -> Auto Lencong Mengejut ke Link Shopee
                 if (remainingMs <= 0) {
                     clearInterval(progressTimer);
                     window.location.href = config.targetUrl;
@@ -247,6 +370,7 @@
             inputImages.value = config.images.join('\n');
             inputSlideDuration.value = config.slideDuration;
             inputPageTitle.value = config.pageTitle;
+            inputPreviewKeyword.value = config.previewKeyword || 'melayu boleh';
             adminModal.classList.remove('hidden');
         }
 
@@ -254,14 +378,13 @@
             adminModal.classList.add('hidden');
         }
 
-        // Buka Admin jika URL ada hash #admin (Contoh: index.html#admin)
         function checkAdminHash() {
             if (window.location.hash === '#admin') {
                 openAdminModal();
             }
         }
 
-        // Buka Admin dengan Pintasan Papan Kekunci Shift + A
+        // Buka Admin dengan pintasan Shift + A
         document.addEventListener('keydown', (e) => {
             if (e.shiftKey && e.key.toLowerCase() === 'a') {
                 openAdminModal();
@@ -274,7 +397,6 @@
         configForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // Kumpul pautan gambar
             const rawImages = inputImages.value.split('\n')
                 .map(url => url.trim())
                 .filter(url => url.length > 0);
@@ -284,10 +406,13 @@
                 return;
             }
 
+            const keyword = inputPreviewKeyword.value.trim() || 'melayu boleh';
+
             config = {
                 targetUrl: inputTargetUrl.value.trim(),
                 pageTitle: inputPageTitle.value.trim(),
                 slideDuration: parseInt(inputSlideDuration.value, 10) || 3,
+                previewKeyword: keyword,
                 images: rawImages
             };
 
@@ -301,16 +426,15 @@
         resetDefaultBtn.addEventListener('click', () => {
             if (confirm("Adakah anda pasti mahu mereset semua tetapan?")) {
                 localStorage.removeItem('site_config');
-                config = DEFAULT_CONFIG;
+                config = { ...DEFAULT_CONFIG };
                 openAdminModal();
                 initPublicPage();
             }
         });
 
-        // Semak hash apabila URL berubah
         window.addEventListener('hashchange', checkAdminHash);
 
-        // Mula Paparan Slaid
+        // Mula Paparan
         initPublicPage();
         checkAdminHash();
     </script>
